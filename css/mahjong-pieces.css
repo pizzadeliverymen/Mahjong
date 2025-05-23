@@ -1,0 +1,66 @@
+.shown-pieces .single-piece {
+    width: fit-content;
+    justify-self: end;
+    align-self: flex-end;
+    padding-top: 0;
+}
+/* 
+.player .single-piece {
+    background-color: white;
+    color: wheat;
+} */
+
+.single-piece {
+    background-color: #F0EAD6;
+    color: black;
+}
+
+.center .single-piece {
+    font-size: 2em;
+    width: 0.8em;
+    height: 1em;
+}
+
+.center.player-left,
+.center.player-right {
+    .single-piece {
+        width: 1em;
+        height: 0.9em;
+    }
+}
+
+.single-piece {
+    line-height: 1em;
+    background-color: #F0EAD6;
+    color: black;
+    border-radius: 15%;
+}
+
+.mahjong-pieces {
+    background: tan;
+    padding: 8px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    color: white;
+    flex: 3;
+}
+
+.shown-pieces .single-piece {
+    background-color: #F0EAD6;
+    color: black;
+}
+
+.single-piece.red {
+    color: red;
+}
+.single-piece.green {
+    color: green;
+}
+.single-piece.white {
+    color: blue;
+}
+
+.riichi {
+    transform: rotate(-90deg);
+}

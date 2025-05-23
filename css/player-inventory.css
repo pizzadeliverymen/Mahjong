@@ -1,0 +1,85 @@
+.shown-pieces {
+    flex: 1;
+    justify-content: end;
+    display: flex;
+    padding: 8px;
+    padding-top: 0px;
+    line-height: 1em;
+}
+
+.player-you .shown-pieces,
+.player-opposite .shown-pieces {
+    min-height: 1.3em;
+}
+
+.player-right .shown-pieces,
+.player-left .shown-pieces {
+    min-width: 1.3em;
+}
+
+.mahjong-set {
+    display: flex;
+    padding: 8px;
+}
+
+.pon {
+    &.shimocha :last-child {
+        transform: rotate(90deg);
+    }
+    &.kamicha :first-child {
+        transform: rotate(90deg);
+    }
+    &.toimen :nth-child(2) {
+        transform: rotate(90deg);
+    }
+}
+.kan {
+    &.shimocha :last-child {
+        transform: rotate(90deg);
+    }
+    &.kamicha :first-child {
+        transform: rotate(90deg);
+    }
+    &.toimen :nth-child(2) {
+        transform: rotate(90deg);
+    }
+    
+}
+.closed-kan {
+    :first-child, :last-child {
+        color:#F0EAD6;
+    }
+}
+
+.chii :first-child {
+    transform: rotate(90deg);
+}
+
+.player {
+    width: 100%;
+    height: 100%;
+}
+
+.player-right .picked-up,
+.player-left .picked-up {
+    min-height: 0.8em;
+    min-width: 1em;
+}
+.player-you .picked-up,
+.player-opposite .picked-up {
+    min-width: 0.8em;
+    min-height: 1em;
+}
+
+.picked-up {
+    padding: 8px;
+    background-color: green;
+}
+
+.in-hand {
+    background: tan;
+    padding: 8px;
+    display: flex;
+    flex-direction: row;
+    color: white;
+}
