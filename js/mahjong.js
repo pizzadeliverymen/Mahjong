@@ -124,6 +124,7 @@ function playTurn() {
 
 }
 
+const snap = new Audio('https://cdn.freesound.org/previews/265/265291_5003039-lq.ogg');
 
 function loadDiscards(discardList, discardElement) {
 
@@ -153,6 +154,7 @@ function loadDiscards(discardList, discardElement) {
 }
 
 function addDiscard(tile, turn) {
+    snap.play()
     let player = currentPlayer[turn % 4]
     let playersDiscard;
     // get the player we are dealing with
