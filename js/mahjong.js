@@ -8,6 +8,10 @@ let order = [playerLeft, playerOpposite, playerRight, playerYou];
 let currentPlayer = ["playerLeft", 'playerOpposite', "playerRight", "playerYou"]
 let drawnTile = undefined
 let turn = 0
+let discardYou = []
+let discardOpposite = []
+let discardLeft = []
+let discardRight = []
 
 /**
  * Simulate mahjong round
@@ -23,14 +27,27 @@ function PlayRound() {
     playerRight = [];
     deck = []
     order = [playerLeft, playerOpposite, playerRight, playerYou];
+    discardYou = []
+    discardOpposite = []
+    discardLeft = []
+    discardRight = []
+    discardOrder = [discardLeft, discardOpposite, discardRight, discardYou];
     turn = 0
+    let youDiscard = document.getElementById("discard-you")
+    let oppositeDiscard = document.getElementById("discard-opposite")
+    let leftDiscard = document.getElementById("discard-left")
+    let rightDiscard = document.getElementById("discard-right")
+    loadDiscards(discardYou, youDiscard)
+    loadDiscards(discardOpposite, oppositeDiscard)
+    loadDiscards(discardLeft, leftDiscard)
+    loadDiscards(discardRight, rightDiscard)
     ManageDeck()
     // deck has been prepared
     // set turn to player
     // add tile to draw
     // tile clicked adds to discard
     
-    playTurn()
+    ForcePlay()
 }
 
 let playID;
@@ -59,23 +76,27 @@ function playTurn() {
         return
     }
     var tile = deck.pop()
+    console.log(`Drawing tile: ${tile}`)
     let turnString = document.getElementById("current-turn")
     turnString.textContent = `It is player [${currentPlayer[turn%4]}]'s turn`
     if (currentPlayer[turn % 4] === "playerYou") {
         clearInterval(playID);
         // if its players turn
-        // player can draw a tile
+        // player can draw a tile~
         // so create tile and place in player-drawn
         playerDrawn = document.getElementById("drawn-you")
         drawnTile = tile
         const tileString = TileSet[tile];
         const node = document.createElement("div");
         node.classList.add("single-piece");
-        if (tile == TileSet.REDDRAGON) {
+        if (tile == "REDDRAGON") {
+            console.log(tile)
             node.classList.add("red", "dragon");
-        } else if (tile == TileSet.GREENDRAGON) {
+        } else if (tile == "GREENDRAGON") {
+            console.log(tile)
             node.classList.add("green", "dragon");
-        } else if (tile == TileSet.WHITEDRAGON) {
+        } else if (tile == "WHITEDRAGON") {
+            console.log(tile)
             node.classList.add("white", "dragon");
         }
         const textnode = document.createTextNode(tileString);
@@ -95,12 +116,40 @@ function playTurn() {
         };
     } else {
         // we need to be able to sleep for a bit to pretend
-    turnString.textContent = `It is player [${currentPlayer[(turn+1)%4]}]'s turn`
+        turnString.textContent = `It is player [${currentPlayer[(turn+1)%4]}]'s turn`
         UpdateCount()
-        addDiscard(tile, turn)
+        addDiscard(tile,turn)
         turn  += 1
     }
 
+}
+
+
+function loadDiscards(discardList, discardElement) {
+
+    while (discardElement.firstChild) {
+        discardElement.removeChild(discardElement.firstChild)
+    }
+    for (let index = 0; index < discardList.length; index++) {
+        let tile = discardList[index]
+        console.log(tile)
+        const tileString = TileSet[tile];
+        const node = document.createElement("div");
+        node.classList.add("single-piece");
+        if (tile == "REDDRAGON") {
+            console.log(tile)
+            node.classList.add("red", "dragon");
+        } else if (tile == "GREENDRAGON") {
+            console.log(tile)
+            node.classList.add("green", "dragon");
+        } else if (tile == "WHITEDRAGON") {
+            console.log(tile)
+            node.classList.add("white", "dragon");
+        }
+        const textnode = document.createTextNode(tileString);
+        node.appendChild(textnode);
+        discardElement.appendChild(node)
+    }
 }
 
 function addDiscard(tile, turn) {
@@ -129,11 +178,14 @@ function addDiscard(tile, turn) {
     const tileString = TileSet[tile];
     const node = document.createElement("div");
     node.classList.add("single-piece");
-    if (tile == TileSet.REDDRAGON) {
+    if (tile == "REDDRAGON") {
+        console.log(tile)
         node.classList.add("red", "dragon");
-    } else if (tile == TileSet.GREENDRAGON) {
+    } else if (tile == "GREENDRAGON") {
+        console.log(tile)
         node.classList.add("green", "dragon");
-    } else if (tile == TileSet.WHITEDRAGON) {
+    } else if (tile == "WHITEDRAGON") {
+        console.log(tile)
         node.classList.add("white", "dragon");
     }
     if (turn % 3 == 0) {
@@ -142,8 +194,12 @@ function addDiscard(tile, turn) {
     const textnode = document.createTextNode(tileString);
     node.appendChild(textnode);
     playersDiscard.appendChild(node)
+    UpdateCount()
 }
 
+function winCondition() {
+
+}
 
 
 /**
@@ -176,6 +232,13 @@ function ManageDeck() {
     showTiles("playerLeft", playerLeft)
     showTiles("playerRight", playerRight)
     UpdateCount()
+    let turnString = document.getElementById("current-turn")
+    turnString.textContent = `No Current Game`
+    // also should remove all discarded tiles
+}
+
+function cleanDiscards() {
+
 }
 
 function UpdateCount() {
@@ -217,11 +280,14 @@ function showTiles(player = "playerYou", hand) {
         const tileString = TileSet[tile];
         const node = document.createElement("div");
         node.classList.add("single-piece");
-        if (hand[index] == TileSet.REDDRAGON) {
+        if (tile == "REDDRAGON") {
+            console.log(tile)
             node.classList.add("red", "dragon");
-        } else if (hand[index] == TileSet.GREENDRAGON) {
+        } else if (tile == "GREENDRAGON") {
+            console.log(tile)
             node.classList.add("green", "dragon");
-        } else if (hand[index] == TileSet.WHITEDRAGON) {
+        } else if (tile == "WHITEDRAGON") {
+            console.log(tile)
             node.classList.add("white", "dragon");
         }
         const textnode = document.createTextNode(tileString);
@@ -229,6 +295,9 @@ function showTiles(player = "playerYou", hand) {
         playersHand.appendChild(node)
         if (player === "playerYou") {
             node.onclick = function() {
+                // console.log(`It is ${currentPlayer[turn%4]}'s turn, we are clicking ${tile}, which is in ${playersHand.textContent}, ` + 
+                //     `\n\twhich contains ${hand}, and the specific element clicked was ${node}`
+                // )
                 playerDiscard(index, hand, node, playersHand)
             }
         }
@@ -237,6 +306,11 @@ function showTiles(player = "playerYou", hand) {
 }
 
 const playerDiscard = (index, hand, node, playersHand) => {
+    if (tile === undefined || hand === undefined || node === undefined || playersHand === undefined || drawnTile === undefined)
+    {
+        console.log("AHHHHHHHHHHHHHHHHHH!")
+        return
+    }
     tile = hand[index]
     console.log(index, tile)
     if (currentPlayer[turn%4] === "playerYou" ) {
