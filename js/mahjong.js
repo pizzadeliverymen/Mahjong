@@ -33,14 +33,7 @@ function PlayRound() {
     discardRight = []
     discardOrder = [discardLeft, discardOpposite, discardRight, discardYou];
     turn = 0
-    let youDiscard = document.getElementById("discard-you")
-    let oppositeDiscard = document.getElementById("discard-opposite")
-    let leftDiscard = document.getElementById("discard-left")
-    let rightDiscard = document.getElementById("discard-right")
-    loadDiscards(discardYou, youDiscard)
-    loadDiscards(discardOpposite, oppositeDiscard)
-    loadDiscards(discardLeft, leftDiscard)
-    loadDiscards(discardRight, rightDiscard)
+    cleanDiscards()
     ManageDeck()
     // deck has been prepared
     // set turn to player
@@ -86,21 +79,7 @@ function playTurn() {
         // so create tile and place in player-drawn
         playerDrawn = document.getElementById("drawn-you")
         drawnTile = tile
-        const tileString = TileSet[tile];
-        const node = document.createElement("div");
-        node.classList.add("single-piece");
-        if (tile == "REDDRAGON") {
-            console.log(tile)
-            node.classList.add("red", "dragon");
-        } else if (tile == "GREENDRAGON") {
-            console.log(tile)
-            node.classList.add("green", "dragon");
-        } else if (tile == "WHITEDRAGON") {
-            console.log(tile)
-            node.classList.add("white", "dragon");
-        }
-        const textnode = document.createTextNode(tileString);
-        node.appendChild(textnode);
+        const node = createTile(tile);
         playerDrawn.appendChild(node)
         node.onclick = function() {
             addDiscard(drawnTile, turn)
@@ -124,35 +103,49 @@ function playTurn() {
 
 }
 
-const snap = new Audio('https://cdn.freesound.org/previews/265/265291_5003039-lq.ogg');
 
-function loadDiscards(discardList, discardElement) {
-
-    while (discardElement.firstChild) {
-        discardElement.removeChild(discardElement.firstChild)
+// This creates a new div for the tile.
+function createTile(tile) {
+    const tileString = TileSet[tile];
+    const node = document.createElement("div");
+    node.classList.add("single-piece");
+    if (tile == "REDDRAGON") {
+        console.log(tile);
+        node.classList.add("red", "dragon");
+    } else if (tile == "GREENDRAGON") {
+        console.log(tile);
+        node.classList.add("green", "dragon");
+    } else if (tile == "WHITEDRAGON") {
+        console.log(tile);
+        node.classList.add("white", "dragon");
     }
-    for (let index = 0; index < discardList.length; index++) {
-        let tile = discardList[index]
-        console.log(tile)
-        const tileString = TileSet[tile];
-        const node = document.createElement("div");
-        node.classList.add("single-piece");
-        if (tile == "REDDRAGON") {
-            console.log(tile)
-            node.classList.add("red", "dragon");
-        } else if (tile == "GREENDRAGON") {
-            console.log(tile)
-            node.classList.add("green", "dragon");
-        } else if (tile == "WHITEDRAGON") {
-            console.log(tile)
-            node.classList.add("white", "dragon");
-        }
-        const textnode = document.createTextNode(tileString);
-        node.appendChild(textnode);
-        discardElement.appendChild(node)
+    const textnode = document.createTextNode(tileString);
+    node.appendChild(textnode);
+    return node;
+}
+
+function cleanDiscards() {
+
+    let youDiscard = document.getElementById("discard-you")
+    let oppositeDiscard = document.getElementById("discard-opposite")
+    let leftDiscard = document.getElementById("discard-left")
+    let rightDiscard = document.getElementById("discard-right")
+
+    while (youDiscard.firstChild) {
+        youDiscard.removeChild(youDiscard.firstChild)
+    }
+    while (oppositeDiscard.firstChild) {
+        oppositeDiscard.removeChild(oppositeDiscard.firstChild)
+    }
+    while (leftDiscard.firstChild) {
+        leftDiscard.removeChild(leftDiscard.firstChild)
+    }
+    while (rightDiscard.firstChild) {
+        rightDiscard.removeChild(rightDiscard.firstChild)
     }
 }
 
+const snap = new Audio('https://cdn.freesound.org/previews/265/265291_5003039-lq.ogg');
 function addDiscard(tile, turn) {
     snap.play()
     let player = currentPlayer[turn % 4]
@@ -177,24 +170,7 @@ function addDiscard(tile, turn) {
             break;
     }
     // add tile to discard
-    const tileString = TileSet[tile];
-    const node = document.createElement("div");
-    node.classList.add("single-piece");
-    if (tile == "REDDRAGON") {
-        console.log(tile)
-        node.classList.add("red", "dragon");
-    } else if (tile == "GREENDRAGON") {
-        console.log(tile)
-        node.classList.add("green", "dragon");
-    } else if (tile == "WHITEDRAGON") {
-        console.log(tile)
-        node.classList.add("white", "dragon");
-    }
-    if (turn % 3 == 0) {
-        node.classList.add("riichi");
-    }
-    const textnode = document.createTextNode(tileString);
-    node.appendChild(textnode);
+    const node = createTile(tile)
     playersDiscard.appendChild(node)
     UpdateCount()
 }
@@ -237,10 +213,6 @@ function ManageDeck() {
     let turnString = document.getElementById("current-turn")
     turnString.textContent = `No Current Game`
     // also should remove all discarded tiles
-}
-
-function cleanDiscards() {
-
 }
 
 function UpdateCount() {
