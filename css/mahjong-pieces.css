@@ -64,3 +64,7 @@
 .riichi {
     transform: rotate(-90deg);
 }
+
+.clickable {
+    cursor: pointer;
+}

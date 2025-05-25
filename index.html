@@ -5,7 +5,8 @@
     <link href="./css/mahjong-board.css" rel="stylesheet">
     <link href="./css/mahjong-pieces.css" rel="stylesheet">
     <link href="./css/player-inventory.css" rel="stylesheet">
-    <script src="./js/mahjong.js" defer></script>
+    <link href="./css/controls.css" rel="stylesheet">
+    <script src="./js/mahjong.js" type="module" defer></script>
 </head>
 <body>
     <header>
@@ -104,7 +105,7 @@
                 </div>
 
                 <div class="player player-right">
-                    <div class="shown-pieces">
+                    <div class="shown-pieces" id="right-shown">
                         <div class="mahjong-set pon shimocha">
                             <div class="single-piece red dragon">🀄︎</div>
                             <div class="single-piece red dragon">🀄︎</div>
@@ -131,7 +132,7 @@
                 </div>
 
                 <div class="player player-you">
-                    <div class="shown-pieces">
+                    <div class="shown-pieces" id="you-shown">
                     </div>
                     <div class="mahjong-pieces">
                         <div class="in-hand" id="players-hand">
@@ -141,6 +142,29 @@
                     </div>
                 </div>
 
+                <div class="controls">
+                    <div class="control-button" id="start-game">
+                        Start Game
+                    </div>
+                    <div class="control-button call hidden" id="call-riichi">
+                        Riichi
+                    </div>
+                    <div class="control-button call hidden" id="call-chii">
+                        Chii
+                    </div>
+                    <div class="control-button call hidden" id="call-pon">
+                        Pon
+                    </div>
+                    <div class="control-button call hidden" id="call-kan">
+                        Kan
+                    </div>
+                    <div class="control-button call hidden" id="call-cancel">
+                        Cancel
+                    </div>
+                    <div class="control-button call" id="test-call">
+                        DEVTEST
+                    </div>
+                </div>
             </div>
         </div>
         <div class="description">

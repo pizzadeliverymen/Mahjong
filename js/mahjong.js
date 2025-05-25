@@ -1,3 +1,4 @@
+import { MeldType, TileSet, sortTiles, Meld } from "./utils.js";
 
 let playerYou = [];
 let playerOpposite = [];
@@ -7,11 +8,26 @@ let deck = []
 let order = [playerLeft, playerOpposite, playerRight, playerYou];
 let currentPlayer = ["playerLeft", 'playerOpposite', "playerRight", "playerYou"]
 let drawnTile = undefined
+
 let turn = 0
+let prevTurn = 0;
+const playersTurn = () => turn%4==3
+
 let discardYou = []
 let discardOpposite = []
 let discardLeft = []
 let discardRight = []
+let discardPiles = [discardLeft, discardOpposite, discardRight, discardYou]
+let allDiscards = []
+
+let openYou = []
+let openOpposite = []
+let openLeft = []
+let openRight = []
+let openList = [openLeft, openOpposite, openRight, openYou]
+
+
+let playID;             // This is the id for the ai to play, can stop and resume any time
 
 /**
  * Simulate mahjong round
@@ -31,23 +47,23 @@ function PlayRound() {
     discardOpposite = []
     discardLeft = []
     discardRight = []
-    discardOrder = [discardLeft, discardOpposite, discardRight, discardYou];
-    turn = 0
+    allDiscards = []
+    discardPiles = [discardLeft, discardOpposite, discardRight, discardYou];
+    console.log(discardPiles)
     cleanDiscards()
     ManageDeck()
-    // deck has been prepared
-    // set turn to player
-    // add tile to draw
-    // tile clicked adds to discard
     
-    ForcePlay()
+    ContinuePlay(interval)
 }
 
-let playID;
-let interval = 100
-function ForcePlay(inter = 100) {
-    interval = inter
-    playID = setInterval(playTurn, interval)
+let interval = 1000;
+function ContinuePlay(inter = 1000) {
+    playID = setInterval(playTurn, inter)
+    playTurn()
+}
+
+function StopPlay() {
+    clearInterval(playID)
 }
 
 
@@ -65,62 +81,64 @@ function slowEach( delay = 100, array, callback ) {
 
 function playTurn() {
     if (deck.length < 1) {
-        clearInterval(playID);
+        StopPlay()
         return
     }
     var tile = deck.pop()
-    console.log(`Drawing tile: ${tile}`)
+    // console.log(`Drawing tile: ${tile}`)
     let turnString = document.getElementById("current-turn")
-    turnString.textContent = `It is player [${currentPlayer[turn%4]}]'s turn`
+    turnString.textContent = `It is player [${currentPlayer[(turn)%4]}]'s turn`
+    console.log(`IT IS TURN ${turn}`)
     if (currentPlayer[turn % 4] === "playerYou") {
-        clearInterval(playID);
+        StopPlay();
         // if its players turn
         // player can draw a tile~
         // so create tile and place in player-drawn
-        playerDrawn = document.getElementById("drawn-you")
+        let playerDrawn = document.getElementById("drawn-you")
         drawnTile = tile
-        const node = createTile(tile);
+        const node = createTile(tile, true);
         playerDrawn.appendChild(node)
         node.onclick = function() {
             addDiscard(drawnTile, turn)
             // player can also discard a tile
-            turn  += 1
-            turnString.textContent = `It is player [${currentPlayer[(turn)%4]}]'s turn`
             // clear the drawn section
             while (playerDrawn.firstChild){
                 playerDrawn.removeChild(playerDrawn.firstChild)
             }
             drawnTile = undefined
-            playID = setInterval(playTurn, interval)
+            ContinuePlay(interval)
+            turn += 1
+            prevTurn += 1
+            playTurn()
         };
     } else {
         // we need to be able to sleep for a bit to pretend
-        turnString.textContent = `It is player [${currentPlayer[(turn+1)%4]}]'s turn`
         UpdateCount()
         addDiscard(tile,turn)
-        turn  += 1
+        turn += 1
+        prevTurn += 1
     }
-
 }
 
 
 // This creates a new div for the tile.
-function createTile(tile) {
+function createTile(tile, isYou=false) {
     const tileString = TileSet[tile];
     const node = document.createElement("div");
-    node.classList.add("single-piece");
+    node.classList.add("single-piece", tile);
     if (tile == "REDDRAGON") {
-        console.log(tile);
+        // console.log(tile);
         node.classList.add("red", "dragon");
     } else if (tile == "GREENDRAGON") {
-        console.log(tile);
+        // console.log(tile);
         node.classList.add("green", "dragon");
     } else if (tile == "WHITEDRAGON") {
-        console.log(tile);
+        // console.log(tile);
         node.classList.add("white", "dragon");
     }
     const textnode = document.createTextNode(tileString);
     node.appendChild(textnode);
+    if (isYou) node.classList.add("clickable")
     return node;
 }
 
@@ -150,10 +168,12 @@ function addDiscard(tile, turn) {
     snap.play()
     let player = currentPlayer[turn % 4]
     let playersDiscard;
+    let isYou = false;
     // get the player we are dealing with
     switch (player) {
         case ("playerYou"):
             playersDiscard = document.getElementById("discard-you")
+            isYou = true
             break;
         case ("playerOpposite"):
             playersDiscard = document.getElementById("discard-opposite")
@@ -172,11 +192,16 @@ function addDiscard(tile, turn) {
     // add tile to discard
     const node = createTile(tile)
     playersDiscard.appendChild(node)
-    UpdateCount()
-}
-
-function winCondition() {
-
+    let length = allDiscards.push(tile)
+    console.log(`pushed ${tile} onto discard ${allDiscards} which makes it ${length}`)
+    discardPiles[turn % 4].push(tile)
+    let chiiAvailable = checkChii(tile, playerYou)
+    if (!isYou && chiiAvailable != null ) {
+        StopPlay()
+        console.log(chiiAvailable)
+    } else {
+        UpdateCount()
+    }
 }
 
 
@@ -195,13 +220,14 @@ function ManageDeck() {
     let index = turn
     let end = (index + 3)% 4
     while ( order[end].length < 13 ) {
-        tile = deck.pop()
+        let tile = deck.pop()
         order[index % 4].push(tile)
         index += 1
     }
-    for (hand in order) {
-        order[hand] = order[hand].sort(sortTiles)
-    }
+    playerYou = playerYou.sort(sortTiles)
+    playerOpposite = playerOpposite.sort(sortTiles)
+    playerLeft = playerLeft.sort(sortTiles)
+    playerRight = playerRight.sort(sortTiles)
     console.log(playerYou)
     // sort tiles in players inventory as well
     // show tiles to players
@@ -224,10 +250,12 @@ function UpdateCount() {
 // show the tiles to the players
 function showTiles(player = "playerYou", hand) {
     let playersHand;
+    let isYou = false
     // get the player we are dealing with
     switch (player) {
         case ("playerYou"):
             playersHand = document.getElementById("players-hand")
+            isYou = true
             break;
         case ("playerOpposite"):
             playersHand = document.getElementById("opposite-hand")
@@ -251,38 +279,25 @@ function showTiles(player = "playerYou", hand) {
     for (let index = 0; index < hand.length; index++) {
         let tile = hand[index]
         console.log(tile)
-        const tileString = TileSet[tile];
-        const node = document.createElement("div");
-        node.classList.add("single-piece");
-        if (tile == "REDDRAGON") {
-            console.log(tile)
-            node.classList.add("red", "dragon");
-        } else if (tile == "GREENDRAGON") {
-            console.log(tile)
-            node.classList.add("green", "dragon");
-        } else if (tile == "WHITEDRAGON") {
-            console.log(tile)
-            node.classList.add("white", "dragon");
-        }
-        const textnode = document.createTextNode(tileString);
-        node.appendChild(textnode);
+        const node = createTile(tile, isYou)
         playersHand.appendChild(node)
         if (player === "playerYou") {
             node.onclick = function() {
-                // console.log(`It is ${currentPlayer[turn%4]}'s turn, we are clicking ${tile}, which is in ${playersHand.textContent}, ` + 
-                //     `\n\twhich contains ${hand}, and the specific element clicked was ${node}`
-                // )
-                playerDiscard(index, hand, node, playersHand)
+                console.log(`It is ${currentPlayer[turn%4]}'s turn, we are clicking ${tile}, which is in ${playersHand.textContent}, ` + 
+                    `\n\twhich contains ${hand}, and the specific element clicked was ${node}`
+                )
+                
+                playerDiscard(index, hand, node, playersHand, tile, drawnTile)
             }
         }
     }
         
 }
 
-const playerDiscard = (index, hand, node, playersHand) => {
+const playerDiscard = (index, hand, node, playersHand, tile, drawnTile) => {
     if (tile === undefined || hand === undefined || node === undefined || playersHand === undefined || drawnTile === undefined)
     {
-        console.log("AHHHHHHHHHHHHHHHHHH!")
+        console.log("Undefined Tile Clicked")
         return
     }
     tile = hand[index]
@@ -298,8 +313,8 @@ const playerDiscard = (index, hand, node, playersHand) => {
         tile = drawnTile
         playerYou.push(tile)
         // and the drawn tile is removed from the drawn section
-        playerDrawn = document.getElementById("drawn-you")
-            while (playerDrawn.firstChild){
+        let playerDrawn = document.getElementById("drawn-you")
+        while (playerDrawn.firstChild){
             playerDrawn.removeChild(playerDrawn.firstChild)
         }
         drawnTile = undefined
@@ -319,6 +334,179 @@ const playerDiscard = (index, hand, node, playersHand) => {
     }
 }
 
+/**
+ * Setup control buttons
+ *  start button -> view:none, run PlayRound()
+ *                  show other controls
+ *
+ *  call chii ->    check youDeck for sequences of 2 and create set of wanted tiles
+ *                  if last discarded tile is in set add sequence tiles to open
+ *               
+ */
+function setupControls() {
+    const startButton = document.getElementById("start-game")
+    const chiiButton = document.getElementById("call-chii")
+    startButton.onclick = function() {
+        startButton.hidden = true
+        // remove hiden from other buttons
+        PlayRound()
+    }
+    chiiButton.onclick = function() {
+        solveChii()
+    }
+    turn = Math.floor((Math.random() * 4))
+    prevTurn = turn-1
+    const devTest = document.getElementById("test-call")
+    devTest.onclick = function() {
+        console.log(turn)
+        ContinuePlay(interval)
+    }
+    console.log(TileSet)
+}
+
+function solveChii() {
+    // we know our last discard is good, so lets go back through the hand and look for where it goes (for now its first come first serve)
+    let discarded = allDiscards.splice(-1)[0];
+    let sequence = [discarded]
+    let keys = Object.keys(TileSet)
+    // we dont count the honor suits so stop at the end of bamboo
+    let limit = keys.indexOf("NINEBAMBOO")
+    let i = 1
+    let notDone = true
+    while (notDone) {
+        let previous = keys.indexOf(playerYou[i-1])
+        let current = keys.indexOf(playerYou[i])
+        let differenceCurr = Math.abs(current-keys.indexOf(discarded))
+        let differencePrev = Math.abs(previous-keys.indexOf(discarded))
+        let differenceDiff = Math.abs(differenceCurr - differencePrev)
+        if (differenceCurr<=2 && (differenceCurr < 2 || differencePrev < 2) ) {
+            // console.log(playerYou[i-1], playerYou[i])
+            // this means that they are next to each other
+            // that means we want the tile after current
+            // or before previous
+            // but that only works as long as the tiles arent terminals (1 or 9)
+            // each "suit" has 9 tiles, so we can do index%9 to check
+            if (previous%9 != 0 && current%9 != 8) {
+                // so if the first tile is not a 1
+                // and if the second tile is not a 9 (its off by 1 because tiles start at 1 but arrays start at 0)
+                sequence.push(keys[previous], keys[current])
+                notDone = false
+            }
+        }
+        // we also need to check if there is a gap of 1 between, (and that neither are terminals again but the opposite direction)
+        // this covers situations like having 1Bamboo, 3Bamboo and you see a 2Bamboo
+        // else if (differenceCurr === 1 && differencePrev === 1  && current%9 != 0 && previous%9 != 8) {
+        //     sequence.push(keys[previous], keys[current])
+        //     notDone = false
+        // }
+
+        i++
+        if (i >= playerYou.length || current >= limit) {
+            notDone = false
+        }
+    }
+    // now we have our sequence
+    console.log(sequence)
+    
+    // so remove it from last players discard
+    allDiscards.pop()
+    discardPiles[turn % 4].pop()
+
+    //  and add to own open
+    let meld = new Meld(MeldType.Chii, sequence)
+    openYou.push(meld)
+    // also do it visually
+    createChiiTiles(sequence)
+
+    let playerWall = document.getElementById("players-hand")
+    // and remove from wall as well
+    
+    // and visually again
+    console.log(playerWall.children)
+    // go through the children and check their classes for the correct tile to delete
+    for (let i = 1; i < sequence.length; i++) {
+        let toRemove = sequence[i]
+        let currentChild = playerWall.getElementsByClassName(sequence[i])[0]
+        let tileIndex = playerYou.indexOf(toRemove)
+        playerYou.splice(tileIndex)
+        playerWall.removeChild(currentChild)
+    }
+}
+
+function createChiiTiles(sequence) {
+    const parentNode = document.getElementById("you-shown")
+    const node = document.createElement("div");
+    node.classList.add("mahjong-set", "chii")
+    for (let i = 0; i < sequence.length; i++) {
+        let newTile = createTile(sequence[i])
+        node.appendChild(newTile)
+    }
+    parentNode.appendChild(node)
+}
+
+function checkChii(tile, playerHand) {
+    let sequences = new Set();
+    let keys = Object.keys(TileSet)
+    // we dont count the honor suits so stop at the end of bamboo
+    let limit = keys.indexOf("NINEBAMBOO")
+    let i = 1
+    let notDone = true
+    while (notDone) {
+        let previous = keys.indexOf(playerHand[i-1])
+        let current = keys.indexOf(playerHand[i])
+        let difference = current-previous
+        if (difference === 1) {
+            // console.log(playerHand[i-1], playerHand[i])
+            // this means that they are next to each other
+            // that means we want the tile after current
+            // or before previous
+            // but that only works as long as the tiles arent terminals (1 or 9)
+            // each "suit" has 9 tiles, so we can do index%9 to check
+            if (previous%9 != 0) {
+                // so if the first tile is not a 1
+                sequences.add(keys[previous-1])
+            }
+            if (current%9 != 8) {
+                // or if the second tile is not a 9 (its off by 1 because tiles start at 1 but arrays start at 0)
+                sequences.add(keys[current + 1])
+            }
+        }
+        // we also need to check if there is a gap of 1 between, (and that neither are terminals again but the opposite direction)
+        // this covers situations like having 1Bamboo, 3Bamboo and you see a 2Bamboo
+        else if (difference === 2 && current%9 != 0 && previous%9 != 8) {
+            sequences.add(keys[current-1])
+        }
+
+        i++
+        if (i >= playerHand.length || current >= limit) {
+            notDone = false
+        }
+    }
+    // now that we have the wanted tiles, we want to check the last discard to see if it fits
+    let toCheck = tile
+    console.log(toCheck)
+    if (sequences.has(toCheck)) {
+        console.log(`WE FOUND ONE: ${toCheck}`)
+        showControl("chii")
+        return toCheck
+    }
+    return null
+}
+
+function showControl(callName) {
+    let controlButton;
+    switch(callName) {
+        case "chii":
+            controlButton = document.getElementById("call-chii")
+            break;
+        default:
+            console.log("no button found killing self")
+            return
+    }
+    controlButton.classList.remove("hidden")
+    document.getElementById("call-cancel").classList.remove("hidden")
+
+}
 
 /**
  * Create variable mahjongDeck of repeating ordered mahjong tiles
@@ -329,8 +517,10 @@ function CreateDeck() {
     // shuffle deck
     // return deck
     let deck = []
-    for (tile in TileSet) {
-        // console.log(tile)
+    const keys = Object.keys(TileSet)
+    for (let i = 0; i < keys.length; i++) {
+        let tile = keys[i]
+        console.log(tile)
         for (let i = 0; i < 4; i++){
             deck.push(tile)
         }
@@ -342,59 +532,27 @@ function CreateDeck() {
     return shuffled
 }
 
-function sortTiles(a, b) { 
-    keys = Object.keys(TileSet)
-    if (keys.indexOf(a) > keys.indexOf(b)) {
-        return 1
-    } else {
-        return -1
-    } 
-} 
-const TileSet = {
-    ONECHARACTER: "🀇",
-    TWOCHARACTER: "🀈",
-    THREECHARACTER: "🀉",
-    FOURCHARACTER: "🀊",
-    FIVECHARACTER: "🀋",
-    SIXCHARACTER: "🀌",
-    SEVENCHARACTER: "🀍",
-    EIGHTCHARACTER: "🀎",
-    NINECHARACTER: "🀏",
-    ONEPIN: "🀙",
-    TWOPIN: "🀚",
-    THREEPIN: "🀛",
-    FOURPIN: "🀜",
-    FIVEPIN: "🀝",
-    SIXPIN: "🀞",
-    SEVENPIN: "🀟",
-    EIGHTPIN: "🀠",
-    NINEPIN: "🀡",
-    ONEBAMBOO: "🀐",
-    TWOBAMBOO: "🀑",
-    THREEBAMBOO: "🀒",
-    FOURBAMBOO: "🀓",
-    FIVEBAMBOO: "🀔",
-    SIXBAMBOO: "🀕",
-    SEVENBAMBOO: "🀖",
-    EIGHTBAMBOO: "🀗",
-    NINEBAMBOO: "🀘",
-    EASTWIND: "🀀",
-    SOUTHWIND: "🀁",
-    WESTWIND: "🀂",
-    NORTHWIND: "🀃",
-    WHITEDRAGON: "🀆",
-    GREENDRAGON: "🀅",
-    REDDRAGON: "🀄︎"
-}
-const TILEBACK = "🀫"
-
-function test() {
-    console.log(typeof TileSet)
-    CreateDeck()
-}
 //  	 	🀢 	🀣 	🀤 	🀥 	🀦 	🀧 	🀨 	🀩 	🀪 	
-document.addEventListener('DOMContentLoaded', ManageDeck(), false)
+document.addEventListener('DOMContentLoaded', setupControls(), false)
 /**
  * Simulate Play:
  *  
  */
+
+try {
+    const tileKeys = Object.keys(TileSet); // <<-- 'tileKeys' is declared with 'const'
+    console.log("TileSet keys:", tileKeys);
+
+    if (tileKeys.length > 0) {
+        console.log("First key:", tileKeys[0]);
+    } else {
+        console.log("No keys found in TileSet.");
+    }
+
+    const unsortedTiles = ["🀈", "🀇", "🀉"];
+    const sorted = sortTiles(unsortedTiles);
+    console.log("Sorted tiles:", sorted);
+
+} catch (error) {
+    console.error("Error accessing TileSet:", error);
+}

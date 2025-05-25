@@ -166,3 +166,13 @@
 #current-turn {
     margin-top: 5em;
 }
+
+.controls {
+    grid-row-start: 3;
+    grid-row-end: 4;
+    grid-column-start: 3;
+    grid-column-end: 4;
+    align-content: center;
+    width: max-content;
+    height: 100%;
+}

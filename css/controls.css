@@ -1,0 +1,29 @@
+
+                    /* <div class="control-button" id="start-game">
+                        Start Game
+                    </div>
+                    <div class="control-button call" id="call-riichi">
+                        Riichi
+                    </div>
+                    <div class="control-button call" id="call-chii">
+                        Chii
+                    </div>
+                    <div class="control-button call" id="call-pon">
+                        Pon
+                    </div>
+                    <div class="control-button call" id="call-kan">
+                        Kan
+                    </div> */
+
+
+.control-button {
+    padding: 4px;
+    background-color: aliceblue;
+    color: black;
+    margin: 4px;
+    cursor: pointer;
+}
+
+.hidden {
+    display: none;
+}
