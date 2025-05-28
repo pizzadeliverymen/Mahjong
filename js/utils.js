@@ -1,14 +1,3 @@
-export function Meld(meldType, tileList) {
-    this.meldType = meldType
-    this.tileList = tileList
-}
-
-export const MeldType = {
-    Chii: "chii",
-    Pon: "pon",
-    Kan: "kan"
-}
-
 export function sortTiles(a, b) {
     let keys = Object.keys(TileSet);
     if (keys.indexOf(a) > keys.indexOf(b)) {
@@ -53,7 +42,37 @@ export const TileSet = {
     GREENDRAGON: "🀅",
     REDDRAGON: "🀄︎"
 };
-const TILEBACK = "🀫";
+export const TILEBACK = "🀫";
+
+export const tileSearch = function (hand, tile, start, end) {
+
+    // Base Condition
+    if (start >= end) return start;
+
+    // Find the middle index
+    let mid = Math.floor((start + end) / 2);
+    // console.log(`\tthe middle tile between ${start} and ${end} is ${hand[mid]} at ${mid}, checking against ${tile}`)
+    // Compare mid with given key x
+    if (hand[mid] === tile) return mid;
+
+    // If element at mid is greater than x,
+    // search in the left half of mid
+    if (sortTiles(hand[mid], tile) == 1)
+        return tileSearch(hand, tile, start, mid - 1);
+    else
+        // If element at mid is smaller than x,
+        // search in the right half of mid
+        return tileSearch(hand, tile, mid + 1, end);
+}
 
 
-console.log(`utils.js loaded. TileSet: ${TileSet}\n${Object.keys(TileSet)}`)
+export const PLAYERACTION = {
+    DISCARD: "discard",
+    CHII: "chii",
+    PON: "pon",
+    KAN: "kan",
+    RIICHI: "riichi",
+    CANCEL: "cancel"
+}
+
+export const BUTTONLIST = PLAYERACTION

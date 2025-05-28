@@ -6,7 +6,7 @@
     <link href="./css/mahjong-pieces.css" rel="stylesheet">
     <link href="./css/player-inventory.css" rel="stylesheet">
     <link href="./css/controls.css" rel="stylesheet">
-    <script src="./js/main.js" type="module" defer></script>
+    <script src="./js/game.js" type="module" defer></script>
 </head>
 <body>
     <header>
@@ -17,8 +17,8 @@
             <div class="mahjong-area">
 
                 <div class="player player-opposite">
-                    <div class="shown-pieces">
-                        <div class="mahjong-set pon toimen">
+                    <div class="shown-pieces" id="opposite-shown">
+                        <!-- <div class="mahjong-set pon toimen">
                             <div class="single-piece red dragon">🀄︎</div>
                             <div class="single-piece red dragon">🀄︎</div>
                             <div class="single-piece red dragon">🀄︎</div>
@@ -33,19 +33,19 @@
                             <div class="single-piece">🀇</div>
                             <div class="single-piece">🀈</div>
                             <div class="single-piece">🀉</div>
-                        </div>
+                        </div> -->
                     </div>
                     <div class="mahjong-pieces">
                         <span class="in-hand" id="opposite-hand">
                         </span>
-                        <span class="picked-up">
+                        <span class="picked-up" id="opposite-drawn">
                         </span>
                     </div>
                 </div>
 
                 <div class="player player-left">
-                    <div class="shown-pieces">
-                        <div class="mahjong-set pon kamicha">
+                    <div class="shown-pieces" id="left-shown">
+                        <!-- <div class="mahjong-set pon kamicha">
                             <div class="single-piece red dragon">🀄︎</div>
                             <div class="single-piece red dragon">🀄︎</div>
                             <div class="single-piece red dragon">🀄︎</div>
@@ -60,20 +60,20 @@
                             <div class="single-piece">🀇</div>
                             <div class="single-piece">🀈</div>
                             <div class="single-piece">🀉</div>
-                        </div>
+                        </div> -->
                     </div>
                     <div class="mahjong-pieces">
                         <div class="in-hand" id="left-hand">
                         </div>
-                        <div class="picked-up">
+                        <div class="picked-up" id="left-drawn">
                         </div>
                     </div>
                 </div>
                 <div class="center-area">
                     <div class="center-board">
-                        <div class="center player-opposite" id="discard-opposite">
+                        <div class="center player-opposite" id="opposite-discard">
                         </div>
-                        <div class="center player-left" id="discard-left">
+                        <div class="center player-left" id="left-discard">
                         </div>
                         <div class="scoring-table">
                             <div class="score-opposite">
@@ -97,36 +97,36 @@
                                 1000
                             </div>
                         </div>
-                        <div class="center player-right" id="discard-right">
+                        <div class="center player-right" id="right-discard">
                         </div>
-                        <div class="center player-you" id="discard-you">
+                        <div class="center player-you" id="you-discard">
                         </div>
                     </div>
                 </div>
 
                 <div class="player player-right">
                     <div class="shown-pieces" id="right-shown">
-                        <div class="mahjong-set pon shimocha">
+                        <!-- <div class="mahjong-set pon shimocha">
                             <div class="single-piece red dragon">🀄︎</div>
                             <div class="single-piece red dragon">🀄︎</div>
                             <div class="single-piece red dragon">🀄︎</div>
                         </div>
                         <div class="mahjong-set kan shimocha">
-                        <div class="single-piece green dragon">🀅</div>
-                        <div class="single-piece green dragon">🀅</div>
-                        <div class="single-piece green dragon">🀅</div>
-                        <div class="single-piece green dragon">🀅</div>
+                            <div class="single-piece green dragon">🀅</div>
+                            <div class="single-piece green dragon">🀅</div>
+                            <div class="single-piece green dragon">🀅</div>
+                            <div class="single-piece green dragon">🀅</div>
                         </div>
                         <div class="mahjong-set chii">
                             <div class="single-piece">🀇</div>
                             <div class="single-piece">🀈</div>
                             <div class="single-piece">🀉</div>
-                        </div>
+                        </div> -->
                     </div>
                     <div class="mahjong-pieces">
                         <span class="in-hand" id="right-hand">
                         </span>
-                        <span class="picked-up">
+                        <span class="picked-up" id="right-drawn">
                         </span>
                     </div>
                 </div>
@@ -135,9 +135,9 @@
                     <div class="shown-pieces" id="you-shown">
                     </div>
                     <div class="mahjong-pieces">
-                        <div class="in-hand" id="players-hand">
+                        <div class="in-hand" id="you-hand">
                         </div>
-                        <div class="picked-up" id="drawn-you">
+                        <div class="picked-up" id="you-drawn">
                         </div>
                     </div>
                 </div>
@@ -161,9 +161,12 @@
                     <div class="control-button call hidden" id="call-cancel">
                         Cancel
                     </div>
-                    <div class="control-button call" id="test-call">
-                        DEVTEST
+                    <div class="control-button call hidden" id="call-discard">
+                        Discard
                     </div>
+                </div>
+                <div class="control-button call" id="test-call">
+                    DEVTEST
                 </div>
             </div>
         </div>
