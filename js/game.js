@@ -13,6 +13,8 @@ export class MahjongGame {
     wantedCommand;
     waitingData;
 
+    east;
+
     constructor(turn=0) {
         this.deck = this.CreateDeck()
         let humanDeck = [];
@@ -42,15 +44,23 @@ export class MahjongGame {
         let player3 = new Player("Opposite",oppositeDeck);
         let player4 = new Player("Right",rightDeck);
         this.players.push(this.human, player2, player3, player4);
+
+        this.turn = turn
+        this.east = turn
         
     }
 
-    randomizeTurn() {this.turn = Math.floor(Math.random()*4)}
+    randomizeTurn() {
+        this.turn = Math.floor(Math.random()*4)
+        this.east = this.turn
+        console.log(`East is ${this.east}`)
+    }
 
     currentPlayer() {return this.players[this.turn%4]}
     getTurn() {return this.turn}
     getPlayers() {return this.players}
     getDeck() {return this.deck}
+    getEast() {return this.east}
 
     NextRound() {
         let currentPlayer = this.players[this.turn % 4]
@@ -73,7 +83,6 @@ export class MahjongGame {
             default:
                 break;
         }
-        updateUI()
         if (this.turn % 4 == 0) {
             // interrupt()
             console.log(`Your deck:\n${currentPlayer.toString()}`);
@@ -84,14 +93,12 @@ export class MahjongGame {
         // this.turn++
         } else {
             currentPlayer.discardTile(nextTile);
-            updateUI()
 
             let chiiCalls = Array.from(this.human.checkChii(nextTile));
             let kanAble = this.human.kanCalls(nextTile);
             let ponAble = kanAble != null? kanAble.slice(0,3) :  this.human.ponCalls(nextTile)
             let callCheck = (chiiCalls.length > 0) || (ponAble != null)
             if (callCheck) {
-                interrupt()
                 let output = `You can call on ${nextTile}!`
                 chiiCalls.forEach( (chii, index) => {
                     console.log(index)

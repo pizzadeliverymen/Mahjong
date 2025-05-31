@@ -308,8 +308,33 @@ function populateBoard(count = 0) {
     setTimeout(populateBoard,5,count+1)
 }
 
+function setEastPlayer() {
+    let eastPlayer = game.getEast()
+    let eastPlayerNode = document.getElementsByClassName("east-player").item(0)
+    eastPlayerNode.classList.remove("hidden")
+    switch (eastPlayer) {
+        case 0:
+            // you
+            eastPlayerNode.id = "east-you"
+            break;
+        case 1:
+            // left
+            eastPlayerNode.id = "east-left"
+            break;
+        case 2:
+            // opposite
+            eastPlayerNode.id = "east-opposite"
+            break;
+        case 3:
+            // right
+            eastPlayerNode.id = "east-right"
+            break;
+    }
+}
+
 function initiateGame() {
     game.randomizeTurn()
+    setEastPlayer()
     timer()
 }
 
